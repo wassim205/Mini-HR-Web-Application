@@ -7,10 +7,12 @@ import {
   updateUser,
   deleteUser,
   updatePassword,
+  getCurrentUser,
 } from "../controllers/UserController.js";
 
 const router = express.Router();
 
+router.get("/me", authenticateToken, getCurrentUser);
 router.get("/", authenticateToken, requireRole("admin"), getAllUsers);
 router.get("/:id", authenticateToken, requireRole("admin"), getUserById);
 router.post("/", authenticateToken, requireRole("admin"), createUser);

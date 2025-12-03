@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Users, Calendar, BookOpen, BarChart2, FileText, Settings } from 'lucide-react';
 import TimeOffManagePage from './TimeOffManagePage.jsx';
 import EvaluationsPage from './EvaluationsPage.jsx';
+import CoursesPage from './CoursesPage.jsx';
 import axios from '../../config/axios.jsx';
 
 export function AdminDashboard({ onSignOut }) {
@@ -37,6 +38,10 @@ export function AdminDashboard({ onSignOut }) {
 
   if (currentPage === 'evaluations') {
     return <EvaluationsPage onBack={() => setCurrentPage('dashboard')} />;
+  }
+
+  if (currentPage === 'courses') {
+    return <CoursesPage onBack={() => setCurrentPage('dashboard')} />;
   }
 
   return (
@@ -107,7 +112,10 @@ export function AdminDashboard({ onSignOut }) {
             <h3 className="font-semibold mb-2">Time Off Requests</h3>
             <p className="text-sm text-slate-500">Review and approve leave requests</p>
           </button>
-          <button className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-left cursor-pointer">
+          <button 
+            onClick={() => setCurrentPage('courses')}
+            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-left cursor-pointer"
+          >
             <BookOpen className="w-8 h-8 text-green-500 mb-3" />
             <h3 className="font-semibold mb-2">Courses & Training</h3>
             <p className="text-sm text-slate-500">Manage training programs</p>
