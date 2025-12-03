@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Calendar, BookOpen, BarChart2, FileText, Settings } from 'lucide-react';
+import { Users, Calendar, BookOpen, BarChart2, FileText, Settings, Download } from 'lucide-react';
 import TimeOffManagePage from './TimeOffManagePage.jsx';
 import EvaluationsPage from './EvaluationsPage.jsx';
 import CoursesPage from './CoursesPage.jsx';
@@ -32,6 +32,42 @@ export function AdminDashboard({ onSignOut }) {
     return new Date(dateString).toLocaleDateString();
   };
 
+  const handleExportEmployees = async () => {
+    try {
+      const response = await axios.get('/export/employees', {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'employees.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error exporting employees:', error);
+      alert('Failed to export employees');
+    }
+  };
+
+  const handleExportTimeOff = async () => {
+    try {
+      const response = await axios.get('/export/timeoff', {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'time_off_requests.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error exporting time off requests:', error);
+      alert('Failed to export time off requests');
+    }
+  };
+
   if (currentPage === 'timeoff') {
     return <TimeOffManagePage onBack={() => setCurrentPage('dashboard')} />;
   }
@@ -52,9 +88,27 @@ export function AdminDashboard({ onSignOut }) {
             <h1 className="text-3xl font-bold">Admin Dashboard</h1>
             <p className="text-slate-500 mt-1">Manage your HR operations</p>
           </div>
-          <button onClick={onSignOut} className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-red-50 hover:border-red-300 hover:text-red-600 cursor-pointer">
-            Sign out
-          </button>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={handleExportEmployees}
+                className="flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 cursor-pointer"
+              >
+                <Download className="w-4 h-4" />
+                Export Employees
+              </button>
+              <button 
+                onClick={handleExportTimeOff}
+                className="flex items-center gap-2 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 cursor-pointer"
+              >
+                <Download className="w-4 h-4" />
+                Export Time Off
+              </button>
+            </div>
+            <button onClick={onSignOut} className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-red-50 hover:border-red-300 hover:text-red-600 cursor-pointer">
+              Sign out
+            </button>
+          </div>
         </header>
 
         {/* Stats Overview */}
