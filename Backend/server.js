@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import dotenv from "dotenv";
 import { authenticateToken, requireRole } from "./middleware/auth.js";
@@ -9,8 +10,11 @@ const port = 3000;
 
 // Middleware
 app.use(express.json());
-
-
+app.use(cors({
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 // Routes
 app.get('/', (req, res) => {
