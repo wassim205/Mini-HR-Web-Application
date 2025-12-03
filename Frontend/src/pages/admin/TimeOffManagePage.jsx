@@ -61,7 +61,7 @@ export function TimeOffManagePage({ onBack }) {
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <div className="max-w-6xl mx-auto p-6">
         <header className="flex items-center gap-4 mb-8">
-          <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-lg">
+          <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-lg cursor-pointer">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
@@ -103,14 +103,14 @@ export function TimeOffManagePage({ onBack }) {
                       <div className="flex gap-2">
                         <button
                           onClick={() => setSelectedRequest({...request, action: 'approve'})}
-                          className="flex items-center gap-1 bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
+                          className="flex items-center gap-1 bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 cursor-pointer"
                         >
                           <Check className="w-4 h-4" />
                           Approve
                         </button>
                         <button
                           onClick={() => setSelectedRequest({...request, action: 'reject'})}
-                          className="flex items-center gap-1 bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
+                          className="flex items-center gap-1 bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 cursor-pointer"
                         >
                           <X className="w-4 h-4" />
                           Reject
@@ -193,7 +193,7 @@ export function TimeOffManagePage({ onBack }) {
               <div className="flex gap-3">
                 <button
                   onClick={() => updateStatus(selectedRequest.id, selectedRequest.action === 'approve' ? 'approved' : 'rejected')}
-                  className={`px-4 py-2 rounded-lg text-white ${
+                  className={`px-4 py-2 rounded-lg text-white cursor-pointer ${
                     selectedRequest.action === 'approve' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
                   }`}
                 >
@@ -204,7 +204,7 @@ export function TimeOffManagePage({ onBack }) {
                     setSelectedRequest(null);
                     setAdminNote('');
                   }}
-                  className="border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-100"
+                  className="border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-100 cursor-pointer"
                 >
                   Cancel
                 </button>

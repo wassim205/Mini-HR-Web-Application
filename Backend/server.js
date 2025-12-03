@@ -3,6 +3,7 @@ import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import timeOffRoutes from "./routes/timeOffRoutes.js";
+import evaluationRoutes from "./routes/evaluationRoutes.js";
 import dotenv from "dotenv";
 import { authenticateToken, requireRole } from "./middleware/auth.js";
 
@@ -26,6 +27,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/timeoff', timeOffRoutes);
+app.use('/api/evaluations', evaluationRoutes);
 
 // example for a protected route
 app.get('/api/test', authenticateToken, requireRole(['employee']), (req, res) => {

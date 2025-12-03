@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, BookOpen, BarChart2, User, Clock, Award } from 'lucide-react';
 import TimeOffPage from './TimeOffPage.jsx';
+import ProfilePage from './ProfilePage.jsx';
 import axios from '../../config/axios.jsx';
 
 export function EmployeeDashboard({ user = { id: 2, name: 'John Doe', email: 'john@hr.com', job_position: 'Accountant', date_hired: '2022-05-20' }, onSignOut }) {
@@ -44,6 +45,10 @@ export function EmployeeDashboard({ user = { id: 2, name: 'John Doe', email: 'jo
     return <TimeOffPage onBack={() => setCurrentPage('dashboard')} />;
   }
 
+  if (currentPage === 'profile') {
+    return <ProfilePage onBack={() => setCurrentPage('dashboard')} user={user} />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <div className="max-w-6xl mx-auto p-6">
@@ -58,7 +63,10 @@ export function EmployeeDashboard({ user = { id: 2, name: 'John Doe', email: 'jo
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-100">
+            <button 
+              onClick={() => setCurrentPage('profile')}
+              className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-100 cursor-pointer"
+            >
               Profile
             </button>
             <button onClick={onSignOut} className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-red-50 hover:border-red-300 hover:text-red-600 cursor-pointer">
@@ -102,23 +110,26 @@ export function EmployeeDashboard({ user = { id: 2, name: 'John Doe', email: 'jo
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <button 
             onClick={() => setCurrentPage('timeoff')}
-            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-left"
+            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-left cursor-pointer"
           >
             <Calendar className="w-8 h-8 text-orange-500 mb-3" />
             <h3 className="font-semibold mb-2">Request Time Off</h3>
             <p className="text-sm text-slate-500">Submit a new leave request</p>
           </button>
-          <button className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-left">
+          <button className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-left cursor-pointer">
             <BookOpen className="w-8 h-8 text-green-500 mb-3" />
             <h3 className="font-semibold mb-2">Browse Courses</h3>
             <p className="text-sm text-slate-500">Enroll in training programs</p>
           </button>
-          <button className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-left">
+          <button 
+            onClick={() => setCurrentPage('profile')}
+            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-left cursor-pointer"
+          >
             <User className="w-8 h-8 text-blue-500 mb-3" />
             <h3 className="font-semibold mb-2">My Profile</h3>
             <p className="text-sm text-slate-500">View and edit your details</p>
           </button>
-          <button className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-left">
+          <button className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-left cursor-pointer">
             <BarChart2 className="w-8 h-8 text-purple-500 mb-3" />
             <h3 className="font-semibold mb-2">My Evaluations</h3>
             <p className="text-sm text-slate-500">View your performance scores</p>
