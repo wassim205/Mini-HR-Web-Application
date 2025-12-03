@@ -154,11 +154,31 @@ const updatePassword = async (req, res) => {
   }
 };
 
+// Get current user
+const getCurrentUser = async (req, res) => {
+  try {
+    const [users] = await db.query(
+      "SELECT id, name, email, role, job_position, birthday, date_hired FROM users WHERE id = ?",
+      [req.user.id]
+    );
+    
+    if (users.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    res.json(users[0]);
+  } catch (error) {
+    console.error("Get current user error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 export { 
   getAllUsers, 
   getUserById, 
   createUser, 
   updateUser, 
   deleteUser, 
-  updatePassword 
+  updatePassword,
+  getCurrentUser 
 };

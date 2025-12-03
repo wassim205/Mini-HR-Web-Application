@@ -5,25 +5,39 @@ import axios from '../../config/axios.jsx';
 export function CoursesPage({ onBack }) {
   const [courses, setCourses] = useState([]);
   const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
+    fetchCurrentUser();
     fetchCourses();
   }, []);
+
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await axios.get('/users/me');
+      setCurrentUser(response.data);
+    } catch (error) {
+      console.error('Error fetching current user:', error);
+    }
+  };
 
   const fetchCourses = async () => {
     try {
       const response = await axios.get('/courses');
       setCourses(response.data);
-      
-      // Get user's enrolled courses from the response
-      const userEnrolled = response.data
-        .filter(course => course.enrolled_users && course.enrolled_users.includes('John Doe'))
-        .map(course => course.id);
-      setEnrolledCourses(userEnrolled);
     } catch (error) {
       console.error('Error fetching courses:', error);
     }
   };
+
+  useEffect(() => {
+    if (currentUser && courses.length > 0) {
+      const userEnrolled = courses
+        .filter(course => course.enrolled_users && course.enrolled_users.includes(currentUser.name))
+        .map(course => course.id);
+      setEnrolledCourses(userEnrolled);
+    }
+  }, [currentUser, courses]);
 
   const handleEnroll = async (courseId) => {
     try {
