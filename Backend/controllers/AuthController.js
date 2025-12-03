@@ -40,7 +40,7 @@ const login = async (req, res) => {
 };
 
 const register = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password } = req.body;
 
   try {
     // check if user already exists
@@ -50,6 +50,7 @@ const register = async (req, res) => {
     if (row.length > 0) {
       return res.status(400).json({ message: "User already exists" });
     }
+    const role = 'employee';
 
     // hash password
     const salt = await bcrypt.genSalt(10);
