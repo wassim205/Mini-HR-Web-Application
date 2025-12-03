@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import dotenv from "dotenv";
 import { authenticateToken, requireRole } from "./middleware/auth.js";
 
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 // example for a protected route
 app.get('/api/test', authenticateToken, requireRole(['employee']), (req, res) => {
