@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import RegisterPage from "./pages/auth/Register.jsx";
 import LoginPage from "./pages/auth/Login.jsx";
-import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
-import EmployeeDashboard from "./pages/employee/EmployeeDashboard.jsx";
+import { AdminDashboard } from "./pages/admin/AdminDashboard.jsx";
+import { EmployeeDashboard } from "./pages/employee/EmployeeDashboard.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
-import { isAuthenticated, redirectToDashboard } from "./utils/auth";
+import { isAuthenticated, redirectToDashboard, logout } from "./utils/auth";
 
 function App() {
   return (
@@ -27,7 +27,7 @@ function App() {
           path="/admin/dashboard"
           element={
             <ProtectedRoute requiredRole="admin">
-              <AdminDashboard />
+              <AdminDashboard onSignOut={logout} />
             </ProtectedRoute>
           }
         />
@@ -36,7 +36,7 @@ function App() {
           path="/employee/dashboard"
           element={
             <ProtectedRoute requiredRole="employee">
-              <EmployeeDashboard />
+              <EmployeeDashboard onSignOut={logout} />
             </ProtectedRoute>
           }
         />
