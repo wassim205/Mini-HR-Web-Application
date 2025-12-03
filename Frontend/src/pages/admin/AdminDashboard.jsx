@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, Calendar, BookOpen, BarChart2, FileText, Settings } from 'lucide-react';
+import TimeOffManagePage from './TimeOffManagePage.jsx';
+import axios from '../../config/axios.jsx';
 
 export function AdminDashboard({ onSignOut }) {
+  const [currentPage, setCurrentPage] = useState('dashboard');
   const [stats] = useState({
     totalEmployees: 27,
     pendingTimeOff: 3,
@@ -9,10 +12,27 @@ export function AdminDashboard({ onSignOut }) {
     completedEvaluations: 18
   });
 
-  const [recentTimeOffs] = useState([
-    { id: 1, user: 'John Doe', start: '2025-01-15', status: 'pending' },
-    { id: 2, user: 'Jane Smith', start: '2025-01-20', status: 'pending' }
-  ]);
+  const [recentTimeOffs, setRecentTimeOffs] = useState([]);
+
+  useEffect(() => {
+    const fetchTimeOffs = async () => {
+      try {
+        const response = await axios.get('/timeoff/all');
+        setRecentTimeOffs(response.data.slice(0, 3));
+      } catch (error) {
+        console.error('Error fetching time offs:', error);
+      }
+    };
+    fetchTimeOffs();
+  }, []);
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  if (currentPage === 'timeoff') {
+    return <TimeOffManagePage onBack={() => setCurrentPage('dashboard')} />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
@@ -74,7 +94,10 @@ export function AdminDashboard({ onSignOut }) {
             <h3 className="font-semibold mb-2">Manage Employees</h3>
             <p className="text-sm text-slate-500">Add, edit, and view employee details</p>
           </button>
-          <button className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-left">
+          <button 
+            onClick={() => setCurrentPage('timeoff')}
+            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-left"
+          >
             <Calendar className="w-8 h-8 text-orange-500 mb-3" />
             <h3 className="font-semibold mb-2">Time Off Requests</h3>
             <p className="text-sm text-slate-500">Review and approve leave requests</p>
@@ -108,8 +131,8 @@ export function AdminDashboard({ onSignOut }) {
             {recentTimeOffs.map(request => (
               <div key={request.id} className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
                 <div>
-                  <p className="font-medium">{request.user}</p>
-                  <p className="text-sm text-slate-500">Requested leave starting {request.start}</p>
+                  <p className="font-medium">{request.user_name}</p>
+                  <p className="text-sm text-slate-500">Requested leave starting {formatDate(request.start_date)}</p>
                 </div>
                 <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
                   {request.status}

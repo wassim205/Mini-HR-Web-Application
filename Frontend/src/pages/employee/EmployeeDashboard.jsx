@@ -1,17 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, BookOpen, BarChart2, User, Clock, Award } from 'lucide-react';
+import TimeOffPage from './TimeOffPage.jsx';
+import axios from '../../config/axios.jsx';
 
 export function EmployeeDashboard({ user = { id: 2, name: 'John Doe', email: 'john@hr.com', job_position: 'Accountant', date_hired: '2022-05-20' }, onSignOut }) {
+  const [currentPage, setCurrentPage] = useState('dashboard');
   const [timeOffBalance] = useState({
     available: 15,
     used: 5,
     pending: 2
   });
 
-  const [recentTimeOffs] = useState([
-    { id: 1, start: '2025-01-10', end: '2025-01-12', reason: 'Family event', status: 'approved' },
-    { id: 2, start: '2025-02-01', end: '2025-02-03', reason: 'Vacation', status: 'pending' }
-  ]);
+  const [recentTimeOffs, setRecentTimeOffs] = useState([]);
+
+  useEffect(() => {
+    const fetchTimeOffs = async () => {
+      try {
+        const response = await axios.get('/timeoff/my-requests');
+        setRecentTimeOffs(response.data.slice(0, 3));
+      } catch (error) {
+        console.error('Error fetching time offs:', error);
+      }
+    };
+    fetchTimeOffs();
+  }, []);
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString();
+  };
 
   const [enrolledCourses] = useState([
     { id: 1, title: 'React Basics', progress: 75 },
@@ -23,6 +39,10 @@ export function EmployeeDashboard({ user = { id: 2, name: 'John Doe', email: 'jo
     { name: 'VAT', score: 72, bucket: '71-100' },
     { name: 'Toolbox', score: 65, bucket: '51-70' }
   ]);
+
+  if (currentPage === 'timeoff') {
+    return <TimeOffPage onBack={() => setCurrentPage('dashboard')} />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
@@ -80,7 +100,10 @@ export function EmployeeDashboard({ user = { id: 2, name: 'John Doe', email: 'jo
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <button className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-left">
+          <button 
+            onClick={() => setCurrentPage('timeoff')}
+            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-left"
+          >
             <Calendar className="w-8 h-8 text-orange-500 mb-3" />
             <h3 className="font-semibold mb-2">Request Time Off</h3>
             <p className="text-sm text-slate-500">Submit a new leave request</p>
@@ -128,7 +151,7 @@ export function EmployeeDashboard({ user = { id: 2, name: 'John Doe', email: 'jo
               {recentTimeOffs.map(request => (
                 <div key={request.id} className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
                   <div>
-                    <p className="font-medium">{request.start} - {request.end}</p>
+                    <p className="font-medium">{formatDate(request.start_date)} - {formatDate(request.end_date)}</p>
                     <p className="text-sm text-slate-500">{request.reason}</p>
                   </div>
                   <span className={`px-3 py-1 rounded-full text-sm ${
