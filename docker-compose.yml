@@ -18,6 +18,8 @@ services:
       - "3000:3000"
     volumes:
       - ./Backend:/app
+      - /app/node_modules
+    command: npm run dev
 
   mysql:
     image: mysql:8.0

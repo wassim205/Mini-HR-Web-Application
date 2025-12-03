@@ -1,6 +1,7 @@
 import express from "express";
 import authRoutes from "./routes/authRoutes.js";
 import dotenv from "dotenv";
+import { authenticateToken, requireRole } from "./middleware/auth.js";
 
 dotenv.config();
 const app = express();
@@ -17,6 +18,11 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+
+// example for a protected route
+app.get('/api/test', authenticateToken, requireRole(['employee']), (req, res) => {
+  res.json({ message: 'This is a protected route' });
+});
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
