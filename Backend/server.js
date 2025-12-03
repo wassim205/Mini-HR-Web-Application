@@ -1,13 +1,13 @@
-import express from "express";
-import cors from "cors";
-import authRoutes from "./routes/authRoutes.js";
-import userRoutes from "./routes/userRoutes.js";
-import timeOffRoutes from "./routes/timeOffRoutes.js";
-import evaluationRoutes from "./routes/evaluationRoutes.js";
-import courseRoutes from "./routes/courseRoutes.js";
-import exportRoutes from "./routes/exportRoutes.js";
-import dotenv from "dotenv";
-import { authenticateToken, requireRole } from "./middleware/auth.js";
+import express from 'express';
+import cors from 'cors';
+import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import timeOffRoutes from './routes/timeOffRoutes.js';
+import evaluationRoutes from './routes/evaluationRoutes.js';
+import courseRoutes from './routes/courseRoutes.js';
+import exportRoutes from './routes/exportRoutes.js';
+import dotenv from 'dotenv';
+import { authenticateToken, requireRole } from './middleware/auth.js';
 
 dotenv.config();
 const app = express();
