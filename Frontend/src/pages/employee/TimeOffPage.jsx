@@ -60,7 +60,7 @@ export function TimeOffPage({ onBack }) {
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <div className="max-w-4xl mx-auto p-6">
         <header className="flex items-center gap-4 mb-8">
-          <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-lg">
+          <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-lg cursor-pointer">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
@@ -73,7 +73,7 @@ export function TimeOffPage({ onBack }) {
         <div className="mb-6">
           <button 
             onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             New Request
@@ -120,14 +120,14 @@ export function TimeOffPage({ onBack }) {
               <div className="flex gap-3">
                 <button 
                   type="submit"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 cursor-pointer"
                 >
                   Submit Request
                 </button>
                 <button 
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-100"
+                  className="border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-100 cursor-pointer"
                 >
                   Cancel
                 </button>
