@@ -2,13 +2,86 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, User, Briefcase, Calendar, GraduationCap } from 'lucide-react';
 import axios from '../../config/axios.jsx';
 
-export function ProfilePage({ onBack, user = { id: 2, name: 'John Doe', email: 'john@hr.com', job_position: 'Accountant', date_hired: '2022-05-20', birthday: '1990-03-15' } }) {
+export function ProfilePage({ onBack }) {
   const [activeTab, setActiveTab] = useState('personal');
   const [evaluationScores, setEvaluationScores] = useState([]);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [formData, setFormData] = useState({});
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
 
   useEffect(() => {
+    fetchUserData();
     fetchEvaluationScores();
   }, []);
+
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get('/users/me');
+      setUser(response.data);
+      setFormData(response.data);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = () => {
+    setEditing(true);
+    setFormData({ ...user });
+  };
+
+  const handleSave = async () => {
+    try {
+      await axios.put(`/users/${user.id}`, formData);
+      setUser(formData);
+      setEditing(false);
+    } catch (error) {
+      console.error('Error updating user:', error);
+    }
+  };
+
+  const handleCancel = () => {
+    setEditing(false);
+    setFormData({ ...user });
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
+  };
+
+  const handlePasswordUpdate = async (e) => {
+    e.preventDefault();
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      alert('New passwords do not match');
+      return;
+    }
+    try {
+      await axios.put(`/users/${user.id}/password`, {
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      });
+      setShowPasswordForm(false);
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      alert('Password updated successfully');
+    } catch (error) {
+      console.error('Error updating password:', error);
+      alert('Failed to update password');
+    }
+  };
 
   const fetchEvaluationScores = async () => {
     try {
@@ -53,20 +126,101 @@ export function ProfilePage({ onBack, user = { id: 2, name: 'John Doe', email: '
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium mb-1">Full Name</label>
-                <input type="text" value={user.name} className="w-full p-2 border border-slate-300 rounded-lg" readOnly />
+                <input 
+                  type="text" 
+                  value={editing ? formData.name || '' : user.name || ''} 
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className="w-full p-2 border border-slate-300 rounded-lg" 
+                  readOnly={!editing} 
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Email</label>
-                <input type="email" value={user.email} className="w-full p-2 border border-slate-300 rounded-lg" readOnly />
+                <input 
+                  type="email" 
+                  value={editing ? formData.email || '' : user.email || ''} 
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  className="w-full p-2 border border-slate-300 rounded-lg" 
+                  readOnly={!editing} 
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Birthday</label>
-                <input type="date" value={user.birthday} className="w-full p-2 border border-slate-300 rounded-lg" readOnly />
+                <input 
+                  type="date" 
+                  value={editing ? formatDateForInput(formData.birthday) : formatDateForInput(user.birthday)} 
+                  onChange={(e) => handleInputChange('birthday', e.target.value)}
+                  className="w-full p-2 border border-slate-300 rounded-lg" 
+                  readOnly={!editing} 
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Phone</label>
                 <input type="tel" placeholder="Not provided" className="w-full p-2 border border-slate-300 rounded-lg" readOnly />
               </div>
+            </div>
+            
+            <div className="mt-8">
+              <h4 className="text-lg font-semibold mb-4">Password</h4>
+              {!showPasswordForm ? (
+                <button 
+                  onClick={() => setShowPasswordForm(true)}
+                  className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 cursor-pointer"
+                >
+                  Change Password
+                </button>
+              ) : (
+                <form onSubmit={handlePasswordUpdate} className="space-y-4 max-w-md">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Current Password</label>
+                    <input 
+                      type="password" 
+                      value={passwordData.currentPassword}
+                      onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                      className="w-full p-2 border border-slate-300 rounded-lg" 
+                      required 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">New Password</label>
+                    <input 
+                      type="password" 
+                      value={passwordData.newPassword}
+                      onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                      className="w-full p-2 border border-slate-300 rounded-lg" 
+                      required 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Confirm New Password</label>
+                    <input 
+                      type="password" 
+                      value={passwordData.confirmPassword}
+                      onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                      className="w-full p-2 border border-slate-300 rounded-lg" 
+                      required 
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      type="submit"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer"
+                    >
+                      Update Password
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        setShowPasswordForm(false);
+                        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                      }}
+                      className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
         );
@@ -77,11 +231,23 @@ export function ProfilePage({ onBack, user = { id: 2, name: 'John Doe', email: '
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium mb-1">Position</label>
-                <input type="text" value={user.job_position} className="w-full p-2 border border-slate-300 rounded-lg" readOnly />
+                <input 
+                  type="text" 
+                  value={editing ? formData.job_position || '' : user.job_position || ''} 
+                  onChange={(e) => handleInputChange('job_position', e.target.value)}
+                  className="w-full p-2 border border-slate-300 rounded-lg" 
+                  readOnly={!editing} 
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Date Hired</label>
-                <input type="date" value={user.date_hired} className="w-full p-2 border border-slate-300 rounded-lg" readOnly />
+                <input 
+                  type="date" 
+                  value={editing ? formatDateForInput(formData.date_hired) : formatDateForInput(user.date_hired)} 
+                  onChange={(e) => handleInputChange('date_hired', e.target.value)}
+                  className="w-full p-2 border border-slate-300 rounded-lg" 
+                  readOnly={!editing} 
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Department</label>
@@ -160,16 +326,64 @@ export function ProfilePage({ onBack, user = { id: 2, name: 'John Doe', email: '
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <p className="text-slate-600">Error loading profile data</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <div className="max-w-6xl mx-auto p-6">
-        <header className="flex items-center gap-4 mb-8">
-          <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-lg cursor-pointer">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-3xl font-bold">My Profile</h1>
-            <p className="text-slate-500">View and manage your information</p>
+        <header className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-lg cursor-pointer">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="text-3xl font-bold">My Profile</h1>
+              <p className="text-slate-500">View and manage your information</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {(activeTab === 'personal' || activeTab === 'job') && (
+              editing ? (
+                <>
+                  <button 
+                    onClick={handleCancel}
+                    className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleSave}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer"
+                  >
+                    Save Changes
+                  </button>
+                </>
+              ) : (
+                <button 
+                  onClick={handleEdit}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer"
+                >
+                  Edit Profile
+                </button>
+              )
+            )}
           </div>
         </header>
 

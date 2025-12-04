@@ -16,12 +16,11 @@ router.get("/me", authenticateToken, getCurrentUser);
 router.get("/", authenticateToken, requireRole("admin"), getAllUsers);
 router.get("/:id", authenticateToken, requireRole("admin"), getUserById);
 router.post("/", authenticateToken, requireRole("admin"), createUser);
-router.put("/:id", authenticateToken, requireRole("admin"), updateUser);
+router.put("/:id", authenticateToken, updateUser);
 router.delete("/:id", authenticateToken, requireRole("admin"), deleteUser);
 router.put(
   "/:id/password",
   authenticateToken,
-  requireRole("admin"),
   updatePassword
 );
 

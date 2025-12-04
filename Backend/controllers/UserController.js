@@ -4,13 +4,38 @@ import bcrypt from "bcryptjs";
 // Get all users
 const getAllUsers = async (req, res) => {
   try {
-    const [users] = await db.query(
-      "SELECT id, name, email, role, job_position, birthday, date_hired FROM users"
-    );
-    res.status(200).json(users);
+    const { search = '', page = 1, limit = 10 } = req.query;
+    const offset = (page - 1) * limit;
+    
+    let query = 'SELECT id, name, email, role, job_position, birthday, date_hired FROM users';
+    let countQuery = 'SELECT COUNT(*) as total FROM users';
+    let params = [];
+    
+    if (search) {
+      query += ' WHERE name LIKE ? OR email LIKE ? OR job_position LIKE ?';
+      countQuery += ' WHERE name LIKE ? OR email LIKE ? OR job_position LIKE ?';
+      const searchParam = `%${search}%`;
+      params = [searchParam, searchParam, searchParam];
+    }
+    
+    query += ' LIMIT ? OFFSET ?';
+    params.push(parseInt(limit), parseInt(offset));
+    
+    const [users] = await db.query(query, params);
+    const [countResult] = await db.query(countQuery, search ? [params[0], params[1], params[2]] : []);
+    
+    res.json({
+      users,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: countResult[0].total,
+        totalPages: Math.ceil(countResult[0].total / limit)
+      }
+    });
   } catch (error) {
-    console.error("Get users error:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error('Get users error:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -69,7 +94,22 @@ const updateUser = async (req, res) => {
   const { name, email, job_position, birthday, date_hired } = req.body;
   const userId = req.params.id;
 
+  // Format dates for MySQL (YYYY-MM-DD)
+  const formatDate = (dateString) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
+  };
+
+  const formattedBirthday = formatDate(birthday);
+  const formattedDateHired = formatDate(date_hired);
+
   try {
+    // Check if user can update this profile (admin or own profile)
+    if (req.user.role !== 'admin' && req.user.id != userId) {
+      return res.status(403).json({ message: 'Insufficient permissions' });
+    }
+
     // Check if user exists
     const [existingUser] = await db.query("SELECT id FROM users WHERE id = ?", [userId]);
     if (existingUser.length === 0) {
@@ -91,7 +131,7 @@ const updateUser = async (req, res) => {
     // Update user
     await db.query(
       "UPDATE users SET name = ?, email = ?, role = ?, job_position = ?, birthday = ?, date_hired = ? WHERE id = ?",
-      [name, email, role, job_position, birthday, date_hired, userId]
+      [name, email, role, job_position, formattedBirthday, formattedDateHired, userId]
     );
 
     res.json({ message: "User updated successfully" });
@@ -128,6 +168,11 @@ const updatePassword = async (req, res) => {
   const userId = req.params.id;
 
   try {
+    // Check if user can update this password (admin or own password)
+    if (req.user.role !== 'admin' && req.user.id != userId) {
+      return res.status(403).json({ message: 'Insufficient permissions' });
+    }
+
     // Get user with password
     const [users] = await db.query("SELECT password FROM users WHERE id = ?", [userId]);
     if (users.length === 0) {

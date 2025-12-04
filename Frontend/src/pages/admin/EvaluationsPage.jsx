@@ -29,7 +29,8 @@ export function EvaluationsPage({ onBack }) {
   const fetchUsers = async () => {
     try {
       const response = await axios.get('/users');
-      setUsers(response.data.filter(u => u.role === 'employee'));
+      const usersData = response.data.users || response.data;
+      setUsers(usersData.filter(u => u.role === 'employee'));
     } catch (error) {
       console.error('Error fetching users:', error);
     }

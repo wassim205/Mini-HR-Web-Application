@@ -3,6 +3,7 @@ import { Users, Calendar, BookOpen, BarChart2, FileText, Settings, Download } fr
 import TimeOffManagePage from './TimeOffManagePage.jsx';
 import EvaluationsPage from './EvaluationsPage.jsx';
 import CoursesPage from './CoursesPage.jsx';
+import EmployeesPage from './EmployeesPage.jsx';
 import axios from '../../config/axios.jsx';
 
 export function AdminDashboard({ onSignOut }) {
@@ -80,6 +81,10 @@ export function AdminDashboard({ onSignOut }) {
     return <CoursesPage onBack={() => setCurrentPage('dashboard')} />;
   }
 
+  if (currentPage === 'employees') {
+    return <EmployeesPage onBack={() => setCurrentPage('dashboard')} />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <div className="max-w-6xl mx-auto p-6">
@@ -153,7 +158,10 @@ export function AdminDashboard({ onSignOut }) {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <button className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-left cursor-pointer">
+          <button 
+            onClick={() => setCurrentPage('employees')}
+            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-left cursor-pointer"
+          >
             <Users className="w-8 h-8 text-blue-500 mb-3" />
             <h3 className="font-semibold mb-2">Manage Employees</h3>
             <p className="text-sm text-slate-500">Add, edit, and view employee details</p>
